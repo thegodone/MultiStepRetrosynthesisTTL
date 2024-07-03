@@ -63,8 +63,7 @@ class MultiStepGraphRetro:
         ENZR_confidence_threshold = 0.0, 
         tmp_file_path = 'tmp/', 
         commercial_file_path = '',
-        gpu_ranks = 0,
-        world_size = 1,
+        gpu = 0,
         ):
         
         with open(commercial_file_path) as f:
@@ -96,8 +95,7 @@ class MultiStepGraphRetro:
 
         self.project_name = project_name
         self.log = log
-        self.gpu_ranks = gpu_ranks
-        self.world_size = world_size
+        self.gpu = gpu
         
         
         self.USPTO_AutoTag_path = USPTO_AutoTag_path
