@@ -146,7 +146,8 @@ class MultiStepGraphRetro:
             ENZR_T2_path = self.ENZR_T2_path, 
             ENZR_T3_path = self.ENZR_T3_path, 
             ENZR_confidence_threshold = self.ENZR_confidence_threshold, 
-            tmp_file_path = self.tmp_file_path
+            tmp_file_path = self.tmp_file_path,
+            gpu = self.gpu
         )
 
     def _if_commercial(self, smiles):
@@ -496,7 +497,8 @@ class MultiStepGraphRetro:
             confidence_filter = self.confidence_filter,
             Retro_beam_size = self.Retro_beam_size,
             mark_locations_filter = self.mark_locations_filter,
-            log = self.log
+            log = self.log,
+            gpu = self.gpu
         )
 
         predictions = self.solved_status_update_reaction_predictions(predictions=predictions, step=0)
@@ -585,7 +587,8 @@ class MultiStepGraphRetro:
                     confidence_filter = self.confidence_filter,
                     Retro_beam_size = self.Retro_beam_size,
                     mark_locations_filter = self.mark_locations_filter,
-                    log = self.log
+                    log = self.log,
+                    gpu = self.gpu
                     )
 
                 # Calculate stuff:
