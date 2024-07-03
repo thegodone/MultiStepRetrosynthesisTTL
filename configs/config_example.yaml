@@ -2,8 +2,7 @@
 target_cpd: 'CC(=O)Nc1ccc(O)cc1'
 project_name: ''
 Resume_predictions_from_path: ''
-gpu_ranks: 0
-world_size: 1
+gpu: 0
 
 # General settings:
 min_solved_routes: 200          # Number of solved routes to reach to stop teh search
