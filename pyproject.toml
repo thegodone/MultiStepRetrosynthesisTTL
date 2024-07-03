@@ -19,7 +19,7 @@ dependencies = [
     "numpy==1.24.4", 
     "pandas==1.1.5", 
     "rdkit==2022.3.3", 
-    "opennmt-py@git+https://github.com/thegodone/OpenNMT-py#a006d8ec25cd138fce466d9d3ab24bd1c915a750", 
+    "opennmt-py@git+https://github.com/thegodone/OpenNMT-py#2a6f42adaca68a4ed803b20e95b5609aba4ecf85", 
     "scscore@git+https://github.com/thegodone/scscore#egg=3e535d69a7f146292cf3e506281e37eb9fae8c50", 
     ]
 
