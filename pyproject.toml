@@ -7,20 +7,20 @@ build-backend = "hatchling.build"
 [project]
 name = "TTLRetro"
 description = "package description."
-version = '1.6.9'
+version = '1.7.0'
 readme = "README.md"
-requires-python = ">=3.8.16"
+requires-python = ">=3.9.19"
 license = { text = "BSD 3-Clause License" }
 authors = [
     { email = "david.kreutter@unibe.ch", name = "David Kreutter" },
 ]
 #dynamic = ["version"]
 dependencies = [
-    "numpy==1.19.5", 
+    "numpy==1.24.4", 
     "pandas==1.1.5", 
     "rdkit==2022.3.3", 
-    "opennmt-py@git+https://github.com/reymond-group/OpenNMT-py#a006d8ec25cd138fce466d9d3ab24bd1c915a750", 
-    "scscore@git+https://github.com/DavKre/scscore#egg=8cc8b9fbc8150d608d9632b28c1c7c3148433115", 
+    "opennmt-py@git+https://github.com/thegodone/OpenNMT-py#a006d8ec25cd138fce466d9d3ab24bd1c915a750", 
+    "scscore@git+https://github.com/thegodone/scscore#egg=3e535d69a7f146292cf3e506281e37eb9fae8c50", 
     ]
 
 [tool.hatch.version]
@@ -42,5 +42,5 @@ retrosynthesis = "ttlretro.run_multistep_retrosynthesis:main"
 test = ["pytest>=6.0"]
 
 [project.urls]
-homepage = "https://github.com/reymond-group/MultiStepRetrosynthesisTTL"
-repository = "https://github.com/reymond-group/MultiStepRetrosynthesisTTL"
+homepage = "https://github.com/thegodone/MultiStepRetrosynthesisTTL"
+repository = "https://github.com/thegodone/MultiStepRetrosynthesisTTL"
