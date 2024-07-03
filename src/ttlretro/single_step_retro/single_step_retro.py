@@ -140,6 +140,7 @@ class SingleStepRetrosynthesis:
         Model_path: str, 
         beam_size: int = 3, 
         batch_size: int = 64, 
+        gpu: int = 0,
         untokenize_output: bool = True
         ) -> Tuple[List, List]:
         '''
@@ -176,6 +177,7 @@ class SingleStepRetrosynthesis:
             "-src",         str(input_file), 
             "-output",      str(output_file), 
             "-batch_size",  str(batch_size), 
+            "-gpu", str(gpu),
             "-max_length",  "1000", 
             "-log_probs",
             "-replace_unk"
