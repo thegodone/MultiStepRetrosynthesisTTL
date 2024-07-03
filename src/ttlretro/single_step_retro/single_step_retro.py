@@ -547,8 +547,7 @@ class SingleStepRetrosynthesis:
                 SMILES = SMILES, 
                 AutoTagging_Beam_Size = AutoTagging_Beam_Size, 
                 mark_locations_filter = mark_locations_filter, 
-                log = log, 
-                gpu = gpu
+                log = log
             )
         else: list_retro_USPTO = []
 
@@ -565,8 +564,7 @@ class SingleStepRetrosynthesis:
                 SMILES = SMILES, 
                 AutoTagging_Beam_Size = AutoTagging_Beam_Size, 
                 mark_locations_filter = mark_locations_filter, 
-                log = log, 
-                gpu = gpu
+                log = log
             )
         else: list_retro_ENZR = []
         
