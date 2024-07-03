@@ -44,6 +44,7 @@ class SingleStepRetrosynthesis:
         ENZR_T3_path = '',
         ENZR_confidence_threshold = 0.0, 
         tmp_file_path = 'tmp/',
+        gpu = 0
         ):
         
         self.USPTO_AutoTag_path = USPTO_AutoTag_path
@@ -55,7 +56,8 @@ class SingleStepRetrosynthesis:
         self.ENZR_T2_path = ENZR_T2_path
         self.ENZR_T3_path = ENZR_T3_path
         self.ENZR_confidence_threshold = ENZR_confidence_threshold
-        
+        self.gpu = gpu
+            
         #      Custom Model:
         self.Custom_Model = 'Custom_Model.pt'  # for round-trip accuracy testing
         self.tmp_file_path = tmp_file_path
@@ -220,7 +222,8 @@ class SingleStepRetrosynthesis:
         predictions, probs = self.Execute_Prediction(
             SMILES_list = Reag_Pred_from_Reaction,
             Model_path = self.USPTO_T2_path,
-            beam_size = beam_size_output
+            beam_size = beam_size_output,
+            gpu = self.gpu
         )
 
         pred = []
@@ -241,7 +244,8 @@ class SingleStepRetrosynthesis:
             SMILES_list = Reag_Pred_from_Reaction,
             Model_path = self.ENZR_T2_path,
             beam_size = beam_size_output, 
-            untokenize_output = False
+            untokenize_output = False,
+            gpu = self.gpu
         )
         
         pred = []
@@ -523,7 +527,8 @@ class SingleStepRetrosynthesis:
         confidence_filter = False, 
         Retro_beam_size = 5, 
         mark_locations_filter = 1, 
-        log = False
+        log = False,
+        gpu = 0
         ):
 
         target = self.canonicalize_smiles(SMILES)
@@ -543,6 +548,7 @@ class SingleStepRetrosynthesis:
                 AutoTagging_Beam_Size = AutoTagging_Beam_Size, 
                 mark_locations_filter = mark_locations_filter, 
                 log = log, 
+                gpu = gpu
             )
         else: list_retro_USPTO = []
 
@@ -560,6 +566,7 @@ class SingleStepRetrosynthesis:
                 AutoTagging_Beam_Size = AutoTagging_Beam_Size, 
                 mark_locations_filter = mark_locations_filter, 
                 log = log, 
+                gpu = gpu
             )
         else: list_retro_ENZR = []
         
