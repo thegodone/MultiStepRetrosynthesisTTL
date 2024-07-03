@@ -52,6 +52,8 @@ default_values = {
     'ENZR_confidence_threshold': '0.9',
     'tmp_file_path': 'tmp/',
     'commercial_file_path': 'stocks/Commercial_canonical.smi', 
+    'gpu_ranks': 0,
+    'world_size': 1,
     }
 
 
@@ -160,6 +162,8 @@ def _load_multistep_graph_retro(conf_dict):
         ENZR_confidence_threshold = conf_dict.ENZR_confidence_threshold,
         tmp_file_path = conf_dict.tmp_file_path, 
         commercial_file_path = conf_dict.commercial_file_path,
+        gpu_ranks = conf_dict.gpu_ranks,
+        world_size = conf_dict.world_size
         )
 
 def _write_logs_before_start(multi_step_retro_predictions, conf_dict, configfile):
