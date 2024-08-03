@@ -44,7 +44,8 @@ class SingleStepRetrosynthesis:
         ENZR_T3_path = '',
         ENZR_confidence_threshold = 0.0, 
         tmp_file_path = 'tmp/',
-        gpu = 0
+        gpu = 0,
+        batch_size = 64
         ):
         
         self.USPTO_AutoTag_path = USPTO_AutoTag_path
@@ -57,6 +58,7 @@ class SingleStepRetrosynthesis:
         self.ENZR_T3_path = ENZR_T3_path
         self.ENZR_confidence_threshold = ENZR_confidence_threshold
         self.gpu = gpu
+        self.batch_size = batch_size
             
         #      Custom Model:
         self.Custom_Model = 'Custom_Model.pt'  # for round-trip accuracy testing
@@ -155,7 +157,6 @@ class SingleStepRetrosynthesis:
             batch_size: batch size for the prediction
             untokenize_output: whether the output should be untokenized (True) or not (False)
         '''
-        print('gpu:',str(gpu))
         # Check Input:
         if not isinstance(SMILES_list, list):
             print('Input should be a list of SMILES')
@@ -223,7 +224,8 @@ class SingleStepRetrosynthesis:
             SMILES_list = Reag_Pred_from_Reaction,
             Model_path = self.USPTO_T2_path,
             beam_size = beam_size_output,
-            gpu = self.gpu
+            gpu = self.gpu,
+            batch_size = self.batch_size
         )
 
         pred = []
@@ -245,7 +247,8 @@ class SingleStepRetrosynthesis:
             Model_path = self.ENZR_T2_path,
             beam_size = beam_size_output, 
             untokenize_output = False,
-            gpu = self.gpu
+            gpu = self.gpu,
+            batch_size = self.batch_size
         )
         
         pred = []
@@ -254,12 +257,12 @@ class SingleStepRetrosynthesis:
             
         return pred
     
-    def get_AutoTags(self, target: str, ini_smiles: str, AutoTagging_Beam_Size: int, Model: str = '', gpu: int = 0) -> list:
+    def get_AutoTags(self, target: str, ini_smiles: str, AutoTagging_Beam_Size: int, Model: str = '', gpu: int = 0, batch_size: int = 64) -> list:
         '''
             Returns a list of AutoTags for a given target SMILES
         '''
         
-        list_retro_auto_tag, _ = self.Execute_Prediction([self.smi_tokenizer(target)], Model_path=Model, beam_size=AutoTagging_Beam_Size, gpu=gpu)
+        list_retro_auto_tag, _ = self.Execute_Prediction([self.smi_tokenizer(target)], Model_path=Model, beam_size=AutoTagging_Beam_Size, gpu=gpu, batch_size=batch_size)
             
         #Check if those generated tags are valid and still representing the same molecule:
         list_retro_auto_tag_curated = []
@@ -302,6 +305,7 @@ class SingleStepRetrosynthesis:
         USPTO_Reag_Beam_Size=3, 
         log=False,
         gpu=0,
+        batch_size = 64
         ):
 
         # Need entire reformating to cover cases when we want individual models but also multiple
@@ -353,7 +357,7 @@ class SingleStepRetrosynthesis:
         # T3 ENZR Forward Prediction:
         if Fwd_ENZ_Reag_Pred:
             if log: self.write_logs('ENZR_Reag_Pred Forward prediction...')
-            predictions, probs = self.Execute_Prediction(list(forw_df[forw_df['Forward_Model'] == self.ENZR_T3_path]['Forward_Model_Input']), Model_path=self.ENZR_T3_path, beam_size=3, gpu=gpu)
+            predictions, probs = self.Execute_Prediction(list(forw_df[forw_df['Forward_Model'] == self.ENZR_T3_path]['Forward_Model_Input']), Model_path=self.ENZR_T3_path, beam_size=3, gpu=gpu, batch_size=batch_size)
             
             if len(forw_df.loc[forw_df['Forward_Model'] == self.ENZR_T3_path, 'Forward_Prediction']) == len(predictions[0]):
                 forw_df.loc[forw_df['Forward_Model'] == self.ENZR_T3_path, 'Forward_Prediction'] = predictions[0]
@@ -365,7 +369,7 @@ class SingleStepRetrosynthesis:
         # T3 USPTO Forward Prediction:
         if Fwd_USPTO_Reag_Pred:
             if log: self.write_logs('USPTO_T3 Forward prediction...')
-            predictions, probs = self.Execute_Prediction(list(forw_df[forw_df['Forward_Model'] == self.USPTO_T3_path]['Forward_Model_Input']), Model_path=self.USPTO_T3_path, beam_size=3, gpu=gpu)
+            predictions, probs = self.Execute_Prediction(list(forw_df[forw_df['Forward_Model'] == self.USPTO_T3_path]['Forward_Model_Input']), Model_path=self.USPTO_T3_path, beam_size=3, gpu=gpu, batch_size=batch_size)
             
             if len(forw_df.loc[forw_df['Forward_Model'] == self.USPTO_T3_path, 'Forward_Prediction']) == len(predictions[0]):
                 forw_df.loc[forw_df['Forward_Model'] == self.USPTO_T3_path, 'Forward_Prediction'] = predictions[0]
@@ -419,7 +423,7 @@ class SingleStepRetrosynthesis:
         
         return df_filtered
     
-    def _get_list_tags(self, Random_Tagging, AutoTagging, AutoTagModel, Substructure_Tagging, mark_count, neighbors, list_substructures, target, SMILES, AutoTagging_Beam_Size, mark_locations_filter, log, gpu):
+    def _get_list_tags(self, Random_Tagging, AutoTagging, AutoTagModel, Substructure_Tagging, mark_count, neighbors, list_substructures, target, SMILES, AutoTagging_Beam_Size, mark_locations_filter, log, gpu, batch_size):
         '''
         The function tags atoms in the target molecule.
         
@@ -447,7 +451,7 @@ class SingleStepRetrosynthesis:
                 list_retro += self.rxn_mark_center.Mark_Random_Atoms(target, mark_count=i+1, neighbors=neighbors, tokenized=True)
         
         if AutoTagging:
-            list_retro += self.get_AutoTags(target=target, ini_smiles=SMILES, AutoTagging_Beam_Size=AutoTagging_Beam_Size, Model=AutoTagModel, gpu=gpu)
+            list_retro += self.get_AutoTags(target=target, ini_smiles=SMILES, AutoTagging_Beam_Size=AutoTagging_Beam_Size, Model=AutoTagModel, gpu=gpu, batch_size=batch_size)
         
         if Substructure_Tagging:
             list_retro += self.rxn_mark_center.Mark_matching_substructures(mol_SMILES=target, list_conditionnal_substructures_tags=list_substructures, tokenized=True)
@@ -530,7 +534,8 @@ class SingleStepRetrosynthesis:
         Retro_beam_size = 5, 
         mark_locations_filter = 1, 
         log = False,
-        gpu = 0
+        gpu = 0,
+        batch_size = 64
         ):
 
         target = self.canonicalize_smiles(SMILES)
@@ -550,7 +555,8 @@ class SingleStepRetrosynthesis:
                 AutoTagging_Beam_Size = AutoTagging_Beam_Size, 
                 mark_locations_filter = mark_locations_filter, 
                 log = log,
-                gpu = gpu
+                gpu = gpu,
+                batch_size = batch_size
             )
         else: list_retro_USPTO = []
 
@@ -568,7 +574,8 @@ class SingleStepRetrosynthesis:
                 AutoTagging_Beam_Size = AutoTagging_Beam_Size, 
                 mark_locations_filter = mark_locations_filter, 
                 log = log,
-                gpu = gpu
+                gpu = gpu,
+                batch_size= batch_size
             )
         else: list_retro_ENZR = []
         
@@ -582,7 +589,7 @@ class SingleStepRetrosynthesis:
         if Retro_ENZR and len(list_retro_ENZR) > 0:
             if log: self.write_logs('Retro prediction on ENZR model ' + str(len(list_retro_ENZR)) + ' marking examples...')
             current_model = self.ENZR_T1_path
-            predictions, probs = self.Execute_Prediction(SMILES_list=['ENZYME ' + el + ' ENZYME' for el in list_retro_ENZR], Model_path=current_model, beam_size=Retro_beam_size, gpu=gpu)
+            predictions, probs = self.Execute_Prediction(SMILES_list=['ENZYME ' + el + ' ENZYME' for el in list_retro_ENZR], Model_path=current_model, beam_size=Retro_beam_size, gpu=gpu, batch_size=batch_size)
             
             # Make DataFrame out of the predictions:
             curr_model = pd.DataFrame(['' for element in range(0, len(predictions)*len(predictions[0]))])
@@ -600,7 +607,7 @@ class SingleStepRetrosynthesis:
         if Retro_USPTO and len(list_retro_USPTO) > 0:
             if log: self.write_logs('Retro prediction on USPTO model ' + str(len(list_retro_USPTO)) + ' marking examples...')
             current_model = self.USPTO_T1_path
-            predictions, probs = self.Execute_Prediction(SMILES_list=list_retro_USPTO, Model_path=current_model, beam_size=Retro_beam_size, gpu=gpu)
+            predictions, probs = self.Execute_Prediction(SMILES_list=list_retro_USPTO, Model_path=current_model, beam_size=Retro_beam_size, gpu=gpu, batch_size=batch_size)
 
             # Make DataFrame out of the predictions:
             curr_model = pd.DataFrame(['' for element in range(0, len(predictions)*len(predictions[0]))])
@@ -630,6 +637,7 @@ class SingleStepRetrosynthesis:
             USPTO_Reag_Beam_Size = USPTO_Reag_Beam_Size, 
             log = log,
             gpu = gpu,
+            batch_size=batch_size
             )
         del df_prediction_Forw_2['Forward_Model_Input']
 

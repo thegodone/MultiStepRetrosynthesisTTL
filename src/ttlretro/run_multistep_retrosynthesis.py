@@ -51,6 +51,7 @@ default_values = {
     'tmp_file_path': 'tmp/',
     'commercial_file_path': 'stocks/Commercial_canonical.smi', 
     'gpu': 0,
+    'batch_size' : 64
     }
 
 
@@ -160,6 +161,7 @@ def _load_multistep_graph_retro(conf_dict):
         tmp_file_path = conf_dict.tmp_file_path, 
         commercial_file_path = conf_dict.commercial_file_path,
         gpu = conf_dict.gpu,
+        batch_size = conf_dict.batch_size
         )
 
 def _write_logs_before_start(multi_step_retro_predictions, conf_dict, configfile):

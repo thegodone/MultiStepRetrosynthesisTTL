@@ -64,6 +64,7 @@ class MultiStepGraphRetro:
         tmp_file_path = 'tmp/', 
         commercial_file_path = '',
         gpu = 0,
+        batch_size = 64,
         ):
         
         with open(commercial_file_path) as f:
@@ -96,6 +97,8 @@ class MultiStepGraphRetro:
         self.project_name = project_name
         self.log = log
         self.gpu = gpu
+        self.batch_size = batch_size
+
 
         self.USPTO_AutoTag_path = USPTO_AutoTag_path
         self.USPTO_T1_path = USPTO_T1_path
@@ -146,7 +149,8 @@ class MultiStepGraphRetro:
             ENZR_T3_path = self.ENZR_T3_path, 
             ENZR_confidence_threshold = self.ENZR_confidence_threshold, 
             tmp_file_path = self.tmp_file_path,
-            gpu = self.gpu
+            gpu = self.gpu,
+            batch_size = self.batch_size
         )
 
     def _if_commercial(self, smiles):
@@ -497,7 +501,8 @@ class MultiStepGraphRetro:
             Retro_beam_size = self.Retro_beam_size,
             mark_locations_filter = self.mark_locations_filter,
             log = self.log,
-            gpu = self.gpu
+            gpu = self.gpu,
+            batch_size = self.batch_size
         )
 
         predictions = self.solved_status_update_reaction_predictions(predictions=predictions, step=0)
@@ -586,7 +591,8 @@ class MultiStepGraphRetro:
                     Retro_beam_size = self.Retro_beam_size,
                     mark_locations_filter = self.mark_locations_filter,
                     log = self.log,
-                    gpu = self.gpu
+                    gpu = self.gpu,
+                    batch_size = self.batch_size
                     )
 
                 # Calculate stuff:
