@@ -9,7 +9,7 @@ name = "TTLRetro"
 description = "package description."
 version = '1.7.0'
 readme = "README.md"
-requires-python = ">=3.9.19"
+requires-python = ">=3.8.15"
 license = { text = "BSD 3-Clause License" }
 authors = [
     { email = "david.kreutter@unibe.ch", name = "David Kreutter" },
