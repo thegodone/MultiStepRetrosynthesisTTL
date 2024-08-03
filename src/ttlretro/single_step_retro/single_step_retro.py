@@ -155,7 +155,7 @@ class SingleStepRetrosynthesis:
             batch_size: batch size for the prediction
             untokenize_output: whether the output should be untokenized (True) or not (False)
         '''
-
+        print('gpu:',str(gpu))
         # Check Input:
         if not isinstance(SMILES_list, list):
             print('Input should be a list of SMILES')
@@ -254,12 +254,12 @@ class SingleStepRetrosynthesis:
             
         return pred
     
-    def get_AutoTags(self, target: str, ini_smiles: str, AutoTagging_Beam_Size: int, Model: str = '') -> list:
+    def get_AutoTags(self, target: str, ini_smiles: str, AutoTagging_Beam_Size: int, Model: str = '', gpu: int = 0) -> list:
         '''
             Returns a list of AutoTags for a given target SMILES
         '''
         
-        list_retro_auto_tag, _ = self.Execute_Prediction([self.smi_tokenizer(target)], Model_path=Model, beam_size=AutoTagging_Beam_Size)
+        list_retro_auto_tag, _ = self.Execute_Prediction([self.smi_tokenizer(target)], Model_path=Model, beam_size=AutoTagging_Beam_Size, gpu=gpu)
             
         #Check if those generated tags are valid and still representing the same molecule:
         list_retro_auto_tag_curated = []
@@ -300,7 +300,8 @@ class SingleStepRetrosynthesis:
         Fwd_ENZ_Reag_Pred=False, 
         Fwd_USPTO_Reag_Pred=True, 
         USPTO_Reag_Beam_Size=3, 
-        log=False
+        log=False,
+        gpu=0,
         ):
 
         # Need entire reformating to cover cases when we want individual models but also multiple
@@ -352,7 +353,7 @@ class SingleStepRetrosynthesis:
         # T3 ENZR Forward Prediction:
         if Fwd_ENZ_Reag_Pred:
             if log: self.write_logs('ENZR_Reag_Pred Forward prediction...')
-            predictions, probs = self.Execute_Prediction(list(forw_df[forw_df['Forward_Model'] == self.ENZR_T3_path]['Forward_Model_Input']), Model_path=self.ENZR_T3_path, beam_size=3)
+            predictions, probs = self.Execute_Prediction(list(forw_df[forw_df['Forward_Model'] == self.ENZR_T3_path]['Forward_Model_Input']), Model_path=self.ENZR_T3_path, beam_size=3, gpu=gpu)
             
             if len(forw_df.loc[forw_df['Forward_Model'] == self.ENZR_T3_path, 'Forward_Prediction']) == len(predictions[0]):
                 forw_df.loc[forw_df['Forward_Model'] == self.ENZR_T3_path, 'Forward_Prediction'] = predictions[0]
@@ -364,7 +365,7 @@ class SingleStepRetrosynthesis:
         # T3 USPTO Forward Prediction:
         if Fwd_USPTO_Reag_Pred:
             if log: self.write_logs('USPTO_T3 Forward prediction...')
-            predictions, probs = self.Execute_Prediction(list(forw_df[forw_df['Forward_Model'] == self.USPTO_T3_path]['Forward_Model_Input']), Model_path=self.USPTO_T3_path, beam_size=3)
+            predictions, probs = self.Execute_Prediction(list(forw_df[forw_df['Forward_Model'] == self.USPTO_T3_path]['Forward_Model_Input']), Model_path=self.USPTO_T3_path, beam_size=3, gpu=gpu)
             
             if len(forw_df.loc[forw_df['Forward_Model'] == self.USPTO_T3_path, 'Forward_Prediction']) == len(predictions[0]):
                 forw_df.loc[forw_df['Forward_Model'] == self.USPTO_T3_path, 'Forward_Prediction'] = predictions[0]
@@ -418,7 +419,7 @@ class SingleStepRetrosynthesis:
         
         return df_filtered
     
-    def _get_list_tags(self, Random_Tagging, AutoTagging, AutoTagModel, Substructure_Tagging, mark_count, neighbors, list_substructures, target, SMILES, AutoTagging_Beam_Size, mark_locations_filter, log):
+    def _get_list_tags(self, Random_Tagging, AutoTagging, AutoTagModel, Substructure_Tagging, mark_count, neighbors, list_substructures, target, SMILES, AutoTagging_Beam_Size, mark_locations_filter, log, gpu):
         '''
         The function tags atoms in the target molecule.
         
@@ -434,6 +435,7 @@ class SingleStepRetrosynthesis:
             AutoTagging_Beam_Size (int): The beam size to use when predicting with the AutoTagging model.
             mark_locations_filter (list): The list of locations to filter out.
             log (bool): If True, the function will write logs.
+            gpu: gpu id
             
         Returns:
             list_retro (list): The list of tagged atoms.
@@ -445,7 +447,7 @@ class SingleStepRetrosynthesis:
                 list_retro += self.rxn_mark_center.Mark_Random_Atoms(target, mark_count=i+1, neighbors=neighbors, tokenized=True)
         
         if AutoTagging:
-            list_retro += self.get_AutoTags(target=target, ini_smiles=SMILES, AutoTagging_Beam_Size=AutoTagging_Beam_Size, Model=AutoTagModel)
+            list_retro += self.get_AutoTags(target=target, ini_smiles=SMILES, AutoTagging_Beam_Size=AutoTagging_Beam_Size, Model=AutoTagModel, gpu=gpu)
         
         if Substructure_Tagging:
             list_retro += self.rxn_mark_center.Mark_matching_substructures(mol_SMILES=target, list_conditionnal_substructures_tags=list_substructures, tokenized=True)
@@ -547,7 +549,8 @@ class SingleStepRetrosynthesis:
                 SMILES = SMILES, 
                 AutoTagging_Beam_Size = AutoTagging_Beam_Size, 
                 mark_locations_filter = mark_locations_filter, 
-                log = log
+                log = log,
+                gpu = gpu
             )
         else: list_retro_USPTO = []
 
@@ -564,7 +567,8 @@ class SingleStepRetrosynthesis:
                 SMILES = SMILES, 
                 AutoTagging_Beam_Size = AutoTagging_Beam_Size, 
                 mark_locations_filter = mark_locations_filter, 
-                log = log
+                log = log,
+                gpu = gpu
             )
         else: list_retro_ENZR = []
         
@@ -578,7 +582,7 @@ class SingleStepRetrosynthesis:
         if Retro_ENZR and len(list_retro_ENZR) > 0:
             if log: self.write_logs('Retro prediction on ENZR model ' + str(len(list_retro_ENZR)) + ' marking examples...')
             current_model = self.ENZR_T1_path
-            predictions, probs = self.Execute_Prediction(SMILES_list=['ENZYME ' + el + ' ENZYME' for el in list_retro_ENZR], Model_path=current_model, beam_size=Retro_beam_size)
+            predictions, probs = self.Execute_Prediction(SMILES_list=['ENZYME ' + el + ' ENZYME' for el in list_retro_ENZR], Model_path=current_model, beam_size=Retro_beam_size, gpu=gpu)
             
             # Make DataFrame out of the predictions:
             curr_model = pd.DataFrame(['' for element in range(0, len(predictions)*len(predictions[0]))])
@@ -596,7 +600,7 @@ class SingleStepRetrosynthesis:
         if Retro_USPTO and len(list_retro_USPTO) > 0:
             if log: self.write_logs('Retro prediction on USPTO model ' + str(len(list_retro_USPTO)) + ' marking examples...')
             current_model = self.USPTO_T1_path
-            predictions, probs = self.Execute_Prediction(SMILES_list=list_retro_USPTO, Model_path=current_model, beam_size=Retro_beam_size)
+            predictions, probs = self.Execute_Prediction(SMILES_list=list_retro_USPTO, Model_path=current_model, beam_size=Retro_beam_size, gpu=gpu)
 
             # Make DataFrame out of the predictions:
             curr_model = pd.DataFrame(['' for element in range(0, len(predictions)*len(predictions[0]))])
@@ -624,7 +628,8 @@ class SingleStepRetrosynthesis:
             Fwd_ENZ_Reag_Pred = Fwd_ENZ_Reag_Pred, 
             Fwd_USPTO_Reag_Pred = Fwd_USPTO_Reag_Pred, 
             USPTO_Reag_Beam_Size = USPTO_Reag_Beam_Size, 
-            log = log
+            log = log,
+            gpu = gpu,
             )
         del df_prediction_Forw_2['Forward_Model_Input']
 

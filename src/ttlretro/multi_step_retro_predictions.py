@@ -96,8 +96,7 @@ class MultiStepGraphRetro:
         self.project_name = project_name
         self.log = log
         self.gpu = gpu
-        
-        
+
         self.USPTO_AutoTag_path = USPTO_AutoTag_path
         self.USPTO_T1_path = USPTO_T1_path
         self.USPTO_T2_path = USPTO_T2_path
@@ -523,7 +522,6 @@ class MultiStepGraphRetro:
                 - max_iteration: maximum number of iterations to run the search
                 - predictions_OLD: if not empty, the function will continue the search from the previous predictions (Pandas DataFrame)
         '''
-        
         if self.log: self.make_single_retropredictions.write_logs('Starting multistep retrosynthesis on: ' + str(target_cpd))
 
         target_cpd = self.make_single_retropredictions.canonicalize_smiles(target_cpd)

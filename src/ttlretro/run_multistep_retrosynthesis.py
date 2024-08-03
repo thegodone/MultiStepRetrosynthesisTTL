@@ -7,8 +7,6 @@ from ttlretro import MultiStepGraphRetro
 
 # Usage: python run_multistep_retrosynthesis.py -c <configfile>
 
-
-
 # Dictionnary of default values:
 default_values = {
     'project_name': '',
@@ -205,6 +203,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', help='Path to the configuration file')
     args = parser.parse_args()
+
 
     run_retrosynthesis(args.config)
 
