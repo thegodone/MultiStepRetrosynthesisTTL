@@ -13,7 +13,8 @@ def display_branch(
     predictions: pd.DataFrame, 
     branch_tree_index_or_list_rxn_id, 
     forwarddirection: bool = False, 
-    printsmiles:bool = False
+    printsmiles:bool = False,
+    drawing:bool =True,
 ) -> None:
     '''
     Display a branch of the tree. 
@@ -42,7 +43,7 @@ def display_branch(
     
     if forwarddirection:
         route.reverse()
-    
+    rxns = []
     for el in route:
         if 'ENZR' in predictions.at[el, 'Forward_Model']:   
             reagents = ''
@@ -59,9 +60,9 @@ def display_branch(
         if enz_rgt != '': print('Enzyme(s) = {}'.format(enz_rgt))
         if printsmiles: print(rxn)
         # TODO: Modify the RDkit ReactionToImage to display double retrosynthesis arrows.
-        display(Chem.Draw.ReactionToImage(AllChem.ReactionFromSmarts(rxn, useSmiles=True), subImgSize=(400, 210)))
-        
-    return None
+        if drawing: display(Chem.Draw.ReactionToImage(AllChem.ReactionFromSmarts(rxn, useSmiles=True), subImgSize=(400, 210)))
+        rxns.append(rxn)
+    return rxns
 
 def get_best_first_branches(
     tree: pd.DataFrame,
