@@ -174,7 +174,6 @@ class MultiStepGraphRetro:
         predictions['Solved_overall'] = [True if all(el) else False for el in predictions['Solved']]
         predictions['Next_Iterated'] = [['Comm' if self._if_commercial(mol) else False for mol in retro] for retro in [mol.split('.') for mol in predictions['Retro']]]
         predictions['Step'] = step
-        #predictions['Score_old'] = [predictions.at[el, 'Prob_Forward_Prediction_1'] * (np.prod([1-((scs_scorer.get_score_from_smi(smi)[1]-1)/4) for smi in predictions.at[el, 'Retro'].split('.')])) / (1-((scs_scorer.get_score_from_smi(predictions.at[el, 'Target'])[1]-1)/4)) for el in range(0, len(predictions))]
         predictions['Score'] = [predictions.at[el, 'Prob_Forward_Prediction_1'] * (np.prod([1-((scs_scorer.get_score_from_smi(smi)[1]-1)/4) if not self._if_commercial(smi) else 1 for smi in predictions.at[el, 'Retro'].split('.')])) for el in range(0, len(predictions))]        
 
         return predictions
@@ -517,6 +516,9 @@ class MultiStepGraphRetro:
 
         predictions.to_pickle(  'output/' + self.project_name + '/' + self.log_time_stamp + '__' + tmp + 'prediction.pkl')
         tree.to_pickle(         'output/' + self.project_name + '/' + self.log_time_stamp + '__' + tmp + 'tree.pkl')
+        predictions.to_csv(  'output/' + self.project_name + '/' + self.log_time_stamp + '__' + tmp + 'prediction.csv')
+        tree.to_csv(         'output/' + self.project_name + '/' + self.log_time_stamp + '__' + tmp + 'tree.csv')
+         
 
     def multistep_search(self, target_cpd, min_solved_routes=20, max_iteration=4, predictions_OLD=''):
         ''' 
@@ -622,15 +624,6 @@ class MultiStepGraphRetro:
         return predictions, tree
 
 
-
-
-'''         # Moved elsewhere because of conflicting __init__.py imports
-class Config(object):
-    def __init__(self, dpth):
-        with open(dpth, "r", encoding="utf-8") as fp:
-            conf_dict = yaml.load(fp, Loader=yaml.FullLoader)
-            for key, val in conf_dict.items():
-                setattr(self, key, val)'''
 
 
 
