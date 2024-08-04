@@ -6,6 +6,7 @@ from ttlretro.config_yaml import Config
 from ttlretro import MultiStepGraphRetro
 import ttlretro.view_routes as vr
 
+
 # Usage: python run_multistep_retrosynthesis.py -c <configfile>
 
 # Dictionnary of default values:
@@ -243,13 +244,17 @@ def run_retrosynthesis(configfile):
             rxns.append(rxn)
         except:
             1
-    df = pd.DataFrame(rxns,columns=['rxn'])
-
-    df.to_csv('output/rxn.csv',index=False)
-
     bests.to_csv('output/best.csv',index=False)
     
     bests.reset_index(drop=True, inplace=True)
+
+    print(rxns)
+
+
+
+    df = pd.DataFrame({'rxn': rxns})
+
+    df.to_csv('output/rxn.csv',index=False)
 
     res = pd.concat([df,bests], axis=1)
     print('*'*10)
