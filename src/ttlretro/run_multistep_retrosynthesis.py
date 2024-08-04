@@ -243,10 +243,22 @@ def run_retrosynthesis(configfile):
             rxns.append(rxn)
         except:
             1
-    df = pd.DataFrame(rxns,columns=['rxn']).to_csv('output/rxn.csv',index=False)
-    bests.to_csv('output/best.csv',index=False)
+    df = pd.DataFrame(rxns,columns=['rxn'])
 
-    pd.concat([df,bests]).to_csv('output/merge.csv')
+    df.to_csv('output/rxn.csv',index=False)
+
+    bests.to_csv('output/best.csv',index=False)
+    
+    bests.reset_index(drop=True, inplace=True)
+
+    res = pd.concat([df,bests], axis=1)
+    print('*'*10)
+
+    print(res)
+    
+    res.to_csv('output/merge.csv')
+
+    print('Relax!')
 
 
 
