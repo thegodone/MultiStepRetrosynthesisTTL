@@ -3,11 +3,14 @@ target_cpd: 'CC(=O)Nc1ccc(O)cc1'
 project_name: ''
 Resume_predictions_from_path: ''
 gpu: -1
-batch_size: 256
+batch_size: 64
+pickling: False
+topk: 20
+sortby: 'Fwd_Conf_Score' # Select score metric to sort by: ('Score', 'Fwd_Conf_Score', or 'Simplicity_Score')
 
 # General settings:
-min_solved_routes: 200          # Number of solved routes to reach to stop teh search
-max_iteration: 2                # Max number of iteration search (recommended min 20)
+min_solved_routes: 100          # Number of solved routes to reach to stop teh search
+max_iteration: 0                # Max number of iteration search (recommended min 20)
 max_mol_per_iteration: 15       # max number of molecules to extend per iteration
 Commercial_exclusions: ['']     # List of molecular SMILES to exclude from the commercial set
 step_penalties_rate: 0.8        # Score penalty applied for each step

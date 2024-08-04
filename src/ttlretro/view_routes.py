@@ -3,7 +3,10 @@
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from rdkit.Chem import rdChemReactions
-from rdkit.Chem.Draw import IPythonConsole
+try:
+    from rdkit.Chem.Draw import IPythonConsole
+except:
+    print('Warning: cannot import IPythonConsole for drawing! only available in jupyter')
 from rdkit.Chem import PandasTools
 from rdkit.Chem import Draw
 import pandas as pd

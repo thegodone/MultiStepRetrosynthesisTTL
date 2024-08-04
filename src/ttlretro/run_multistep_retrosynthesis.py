@@ -4,6 +4,7 @@ import pandas as pd
 import argparse
 from ttlretro.config_yaml import Config
 from ttlretro import MultiStepGraphRetro
+import ttlretro.view_routes as vr
 
 # Usage: python run_multistep_retrosynthesis.py -c <configfile>
 
@@ -51,7 +52,10 @@ default_values = {
     'tmp_file_path': 'tmp/',
     'commercial_file_path': 'stocks/Commercial_canonical.smi', 
     'gpu': 0,
-    'batch_size' : 64
+    'batch_size' : 64,
+    'pickling': True,
+    'topk': 10,
+    'sortby': 'Fwd_Conf_Score',
     }
 
 
@@ -161,7 +165,10 @@ def _load_multistep_graph_retro(conf_dict):
         tmp_file_path = conf_dict.tmp_file_path, 
         commercial_file_path = conf_dict.commercial_file_path,
         gpu = conf_dict.gpu,
-        batch_size = conf_dict.batch_size
+        batch_size = conf_dict.batch_size,
+        pickling = conf_dict.pickling,
+        sortby = conf_dict.sortby,
+        topk = conf_dict.topk
         )
 
 def _write_logs_before_start(multi_step_retro_predictions, conf_dict, configfile):
@@ -190,14 +197,59 @@ def run_retrosynthesis(configfile):
     multi_step_retro_predictions = _load_multistep_graph_retro(conf_dict)
 
     _write_logs_before_start(multi_step_retro_predictions, conf_dict, configfile)
-    
+    print(conf_dict.pickling)
     # RUN PREDICTIONS:
-    _, _ = multi_step_retro_predictions.multistep_search(
+    predictions, tree = multi_step_retro_predictions.multistep_search(
         target_cpd = conf_dict.target_cpd, 
         min_solved_routes = conf_dict.min_solved_routes, 
         max_iteration = conf_dict.max_iteration, 
-        predictions_OLD = conf_dict.predictions_pickle
+        predictions_OLD = conf_dict.predictions_pickle,
+        pickling = conf_dict.pickling
         )
+
+
+    if 'Steps' not in tree.columns:
+        tree['Steps'] = tree['Route'].apply(lambda x: len(x))
+
+    print('*'*10)
+    print(predictions.head())
+    print('#'*10)
+
+    print(tree.head())
+    print('*'*10)
+    print(conf_dict.sortby)
+    # extrating pred and tree
+
+    tree = vr.get_advanced_scores(tree=tree, predictions=predictions)
+    print('*'*10)
+
+    print(tree)
+
+    bests = vr.get_best_first_branches(
+    tree=tree, 
+    predictions=predictions, 
+    num_branches=conf_dict.topk, 
+    score_metric=conf_dict.sortby
+    )
+
+    rxns =[]
+    for i in range(conf_dict.topk):
+        try:
+            rxn = vr.display_branch(branch_tree_index_or_list_rxn_id=i, 
+                tree=bests,  predictions=predictions, 
+                forwarddirection=True,
+                printsmiles = True,
+                drawing =False)
+            rxns.append(rxn)
+        except:
+            1
+    df = pd.DataFrame(rxns,columns=['rxn']).to_csv('output/rxn.csv',index=False)
+    bests.to_csv('output/best.csv',index=False)
+
+    pd.concat([df,bests]).to_csv('output/merge.csv')
+
+
+
 
 
 def main():

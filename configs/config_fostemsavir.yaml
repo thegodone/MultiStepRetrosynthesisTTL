@@ -2,10 +2,12 @@
 target_cpd: 'O=C(C(N1CCN(C(C2=CC=CC=C2)=O)CC1)=O)C3=CN(COP(O)(O)=O)C4=C(N5C=NC(C)=N5)N=CC(OC)=C43'
 project_name: 'fostemsavir'
 Resume_predictions_from_path: ''
+gpu: -1
+batch_size: 64
 
 # General settings:
-min_solved_routes: 5000         # Number of solved routes to reach to stop teh search
-max_iteration: 200              # Max number of iteration search (recommended min 20)
+min_solved_routes: 10           # Number of solved routes to reach to stop teh search
+max_iteration: 1                # Max number of iteration search (recommended min 20)
 max_mol_per_iteration: 40       # max number of molecules to extend per iteration
 Commercial_exclusions: ['COc1cnc(-n2cnc(C)n2)c2[nH]cc(C(=O)C(=O)N3CCN(C(=O)c4ccccc4)CC3)c12', 'COc1cnc(-n2cnc(C)n2)c2[nH]cc(C(=O)C(=O)O)c12', 'COc1cnc(-n2cnc(C)n2)c2[nH]ccc12', 'COC(=O)C(=O)c1c[nH]c2c(-n3cnc(C)n3)ncc(OC)c12']     # List of molecular SMILES to exclude from the commercial set
 step_penalties_rate: 0.8        # Score penalty applied for each step

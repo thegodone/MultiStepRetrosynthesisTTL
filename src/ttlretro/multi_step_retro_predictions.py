@@ -65,6 +65,9 @@ class MultiStepGraphRetro:
         commercial_file_path = '',
         gpu = 0,
         batch_size = 64,
+        pickling = False,
+        sortby = 'Fwd_Conf_Score',
+        topk = 10
         ):
         
         with open(commercial_file_path) as f:
@@ -98,7 +101,9 @@ class MultiStepGraphRetro:
         self.log = log
         self.gpu = gpu
         self.batch_size = batch_size
-
+        self.pickling = pickling
+        self.sortby = sortby
+        self.topk = topk
 
         self.USPTO_AutoTag_path = USPTO_AutoTag_path
         self.USPTO_T1_path = USPTO_T1_path
@@ -509,18 +514,19 @@ class MultiStepGraphRetro:
 
         return predictions, df_prediction_backup
 
-    def _save_checkpoint(self, predictions, tree, final=False):
+    def _save_checkpoint(self, predictions, tree, final=False, pickling=False):
 
         if not final:   tmp = 'tmp_'
         else:           tmp = ''
 
-        predictions.to_pickle(  'output/' + self.project_name + '/' + self.log_time_stamp + '__' + tmp + 'prediction.pkl')
-        tree.to_pickle(         'output/' + self.project_name + '/' + self.log_time_stamp + '__' + tmp + 'tree.pkl')
-        predictions.to_csv(  'output/' + self.project_name + '/' + self.log_time_stamp + '__' + tmp + 'prediction.csv')
-        tree.to_csv(         'output/' + self.project_name + '/' + self.log_time_stamp + '__' + tmp + 'tree.csv')
+        if pickling:
+            predictions.to_pickle(  'output/' + self.project_name + '/' + self.log_time_stamp + '__' + tmp + 'prediction.pkl')
+            tree.to_pickle(         'output/' + self.project_name + '/' + self.log_time_stamp + '__' + tmp + 'tree.pkl')
+        predictions.to_csv(  'output/prediction.csv')
+        tree.to_csv(         'output/tree.csv')
          
 
-    def multistep_search(self, target_cpd, min_solved_routes=20, max_iteration=4, predictions_OLD=''):
+    def multistep_search(self, target_cpd, min_solved_routes=20, max_iteration=4, predictions_OLD='', pickling=False):
         ''' 
             Main function to run the multistep retrosynthesis search
             Input: 
@@ -546,18 +552,18 @@ class MultiStepGraphRetro:
             tree = self.Get_Tree_From_Reaction_DF(predictions, target_cpd)
             if len(tree[tree['Solved'] == 'Yes']) >= min_solved_routes: 
                 if self.log: self.make_single_retropredictions.write_logs('reached min_solved_routes')
-                self._save_checkpoint(predictions, tree, final=True)
+                self._save_checkpoint(predictions, tree, final=True, pickling=pickling)
                 return predictions, tree
         else:
             predictions = predictions_OLD.copy()
             tree = self.Get_Tree_From_Reaction_DF(predictions, target_cpd)
             if len(tree[tree['Solved'] == 'Yes']) >= min_solved_routes: 
                 if self.log: self.make_single_retropredictions.write_logs('reached min_solved_routes')
-                self._save_checkpoint(predictions, tree, final=True)
+                self._save_checkpoint(predictions, tree, final=True, pickling=pickling)
                 return predictions, tree
             shift = max(list(predictions['Step']))
 
-        self._save_checkpoint(predictions, tree, final=False)
+        self._save_checkpoint(predictions, tree, final=False, pickling=pickling)
 
         # Iterate over:
         for iteration in range(0+shift, max_iteration+shift):
@@ -608,19 +614,19 @@ class MultiStepGraphRetro:
             predictions = pd.concat([predictions, current_preds])
             predictions = self.connect_linked_reaction_predictions(predictions=predictions, next_pred_mol=next_pred_mol)
 
-            self._save_checkpoint(predictions, tree, final=False)
+            self._save_checkpoint(predictions, tree, final=False, pickling=pickling)
             tree = self.Get_Tree_From_Reaction_DF(predictions, target_cpd)
             if self.log: self.make_single_retropredictions.write_logs('Solved routes: ' + str(len(tree[tree['Solved'] == 'Yes'])))
             
             if len(tree[tree['Solved'] == 'Yes']) >= min_solved_routes: 
                 if self.log: self.make_single_retropredictions.write_logs('Reached min_solved_routes')
-                self._save_checkpoint(predictions, tree, final=True)
+                self._save_checkpoint(predictions, tree, final=True, pickling=pickling)
                 return predictions, tree
 
-            self._save_checkpoint(predictions, tree, final=False)
+            self._save_checkpoint(predictions, tree, final=False, pickling=pickling)
 
         if self.log: self.make_single_retropredictions.write_logs('normal termination')
-        self._save_checkpoint(predictions, tree, final=True)
+        self._save_checkpoint(predictions, tree, final=True, pickling=pickling)
         return predictions, tree
 
 
