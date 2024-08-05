@@ -12,7 +12,7 @@ readme = "README.md"
 requires-python = ">=3.8.15"
 license = { text = "BSD 3-Clause License" }
 authors = [
-    { email = "david.kreutter@unibe.ch", name = "David Kreutter"
+    { email = "david.kreutter@unibe.ch", name = "David Kreutter" ,
       email = "guillaume.godin@gmail.com", name = "Guillaume Godin"},
 ]
 #dynamic = ["version"]
