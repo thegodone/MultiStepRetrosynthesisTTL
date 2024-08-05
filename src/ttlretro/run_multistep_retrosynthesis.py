@@ -199,7 +199,6 @@ def run_retrosynthesis(configfile):
     multi_step_retro_predictions = _load_multistep_graph_retro(conf_dict)
 
     _write_logs_before_start(multi_step_retro_predictions, conf_dict, configfile)
-    print(conf_dict.pickling)
     # RUN PREDICTIONS:
     predictions, tree = multi_step_retro_predictions.multistep_search(
         target_cpd = conf_dict.target_cpd, 
@@ -213,19 +212,10 @@ def run_retrosynthesis(configfile):
     if 'Steps' not in tree.columns:
         tree['Steps'] = tree['Route'].apply(lambda x: len(x))
 
-    print('*'*10)
-    print(predictions.head())
-    print('#'*10)
-
-    print(tree.head())
-    print('*'*10)
-    print(conf_dict.sortby)
     # extrating pred and tree
 
     tree = vr.get_advanced_scores(tree=tree, predictions=predictions)
-    print('*'*10)
 
-    print(tree)
 
     bests = vr.get_best_first_branches(
     tree=tree, 
@@ -250,16 +240,12 @@ def run_retrosynthesis(configfile):
     
     bests.reset_index(drop=True, inplace=True)
 
-    print(rxns)
 
     df = pd.DataFrame({'rxn': rxns})
 
     df.to_csv('output/rxn.csv',index=False)
 
     res = pd.concat([df,bests], axis=1)
-    print('*'*10)
-
-    print(res)
     
     res.to_csv('output/merge.csv')
 

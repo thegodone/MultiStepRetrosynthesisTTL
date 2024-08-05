@@ -131,7 +131,6 @@ def get_advanced_scores(
             prod *= predictions.at[rxn, 'Prob_Forward_Prediction_1']
             arrayval.append(predictions.at[rxn, 'Prob_Forward_Prediction_1'])
         tree.at[branch, 'Fwd_Conf_Score'] = prod
-        print(np.array(arrayval))
         tree.at[branch, 'Step_FWd_Conf_Score'] = np.array(arrayval)
     
     tree['Simplicity_Score'] = 0.0
