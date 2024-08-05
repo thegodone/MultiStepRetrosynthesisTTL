@@ -57,6 +57,8 @@ conda activate MultiStepRetro_ENZ
 retrosynthesis --config configs/config_example.yaml
 ```
 
+this custom version also apply partially extraction routes similar to the Visualizing tool. It generates merges.csv files.
+
 ## Visualizing Results
 
 Results are written into `output/project_name/` as pickle files. Forward validated single step-reaction predictions are stored as `output/project_name/[DateJob]__prediction.pkl`, and full predicted route paths are stored as `output/project_name/[DateJob]__tree.pkl`, which refers to reaction indexes from `[DateJob]__prediction.pkl`. Routes could be sorted by scores to get the best ones. Temporary checkpoints are written in the `output/project_name/` folder after each iteration to monitor the progress of retrosynthesis, but also to resume a job starting from checkpoints. If logs are enabled, those are written into `output/project_name/`.
