@@ -57,6 +57,7 @@ default_values = {
     'pickling': True,
     'topk': 10,
     'sortby': 'Fwd_Conf_Score',
+    'keepunresolved': True
     }
 
 
@@ -169,7 +170,7 @@ def _load_multistep_graph_retro(conf_dict):
         batch_size = conf_dict.batch_size,
         pickling = conf_dict.pickling,
         sortby = conf_dict.sortby,
-        topk = conf_dict.topk
+        topk = conf_dict.topk,
         )
 
 def _write_logs_before_start(multi_step_retro_predictions, conf_dict, configfile):
@@ -230,7 +231,8 @@ def run_retrosynthesis(configfile):
     tree=tree, 
     predictions=predictions, 
     num_branches=conf_dict.topk, 
-    score_metric=conf_dict.sortby
+    score_metric=conf_dict.sortby,
+    keepunresolved=conf_dict.keepunresolved
     )
 
     rxns =[]
@@ -250,8 +252,6 @@ def run_retrosynthesis(configfile):
 
     print(rxns)
 
-
-
     df = pd.DataFrame({'rxn': rxns})
 
     df.to_csv('output/rxn.csv',index=False)
@@ -264,9 +264,6 @@ def run_retrosynthesis(configfile):
     res.to_csv('output/merge.csv')
 
     print('Relax!')
-
-
-
 
 
 def main():

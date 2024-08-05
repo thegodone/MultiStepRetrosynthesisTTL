@@ -4,6 +4,9 @@ project_name: 'fostemsavir'
 Resume_predictions_from_path: ''
 gpu: -1
 batch_size: 64
+pickling: False
+topk: 20
+sortby: 'Fwd_Conf_Score' # Select score metric to sort by: ('Score', 'Fwd_Conf_Score', or 'Simplicity_Score')
 
 # General settings:
 min_solved_routes: 10           # Number of solved routes to reach to stop teh search

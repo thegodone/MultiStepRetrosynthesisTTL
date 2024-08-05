@@ -10,6 +10,7 @@ except:
 from rdkit.Chem import PandasTools
 from rdkit.Chem import Draw
 import pandas as pd
+import numpy as np
 
 def display_branch(
     tree: pd.DataFrame, 
@@ -71,7 +72,8 @@ def get_best_first_branches(
     tree: pd.DataFrame,
     predictions: pd.DataFrame,
     num_branches: int = 10,
-    score_metric: str = 'Score'
+    score_metric: str = 'Score',
+    keepunresolved: bool = False,
 ) -> pd.DataFrame:
     '''
     Get the best scoring first branches of the tree. 
@@ -90,9 +92,12 @@ def get_best_first_branches(
 
     tree_copy = tree.copy()
     tree_copy['first_best'] = False
-
+    # keep the solved versions only (Solved == 'Yes')
     for each_first in predictions[predictions['Step'] == 0]['index']:
-        for el in tree_copy[tree_copy['Solved'] == 'Yes'].sort_values(score_metric, ascending=False).index:
+        # return all or only Solved ones
+        mask = (tree_copy['Solved'] == 'Yes') | (keepunresolved and (tree_copy['Solved'] == 'No'))
+
+        for el in tree_copy[mask].sort_values(score_metric, ascending=False).index:
             if each_first in tree_copy.at[el, 'Route']:
                 tree_copy.at[el, 'first_best'] = True
                 break
@@ -117,11 +122,17 @@ def get_advanced_scores(
             - Simplicity_Score: Score without considering the confidence score or penalty score. Useful to get efficient routes that are not 
     '''
     tree['Fwd_Conf_Score'] = 0.0
+    tree['Step_FWd_Conf_Score'] = None
+
     for branch in range(0, len(tree['Route'])):
         prod = 1
+        arrayval = []
         for rxn in tree.at[branch, 'Route']:
             prod *= predictions.at[rxn, 'Prob_Forward_Prediction_1']
+            arrayval.append(predictions.at[rxn, 'Prob_Forward_Prediction_1'])
         tree.at[branch, 'Fwd_Conf_Score'] = prod
+        print(np.array(arrayval))
+        tree.at[branch, 'Step_FWd_Conf_Score'] = np.array(arrayval)
     
     tree['Simplicity_Score'] = 0.0
     for branch in range(0, len(tree['Route'])):
