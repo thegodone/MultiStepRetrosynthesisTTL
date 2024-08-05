@@ -10,8 +10,10 @@ The goal of this tool is to predict multistep retrosynthesis routes combining a 
 Create the conda environment, clone this repo and install:
 
 ``` bash
-conda create -n MultiStepRetro_ENZ python=3.9.19 -y
+conda create -n MultiStepRetro_ENZ python=3.9.19  -y
 conda activate MultiStepRetro_ENZ
+conda install pandas=1.1.5
+conda install rdkit==2022.3.3
 
 git clone https://github.com/thegodone/MultiStepRetrosynthesisTTL.git
 
